@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:Subsystem xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="ce239cbb-ca9e-4ef2-bafa-5c25de533da1">
+  <name>EUSign</name>
+  <synonym>
+    <key>ru</key>
+    <value>EUSign</value>
+  </synonym>
+  <synonym>
+    <key>uk</key>
+    <value>EUSign</value>
+  </synonym>
+  <includeHelpInContents>true</includeHelpInContents>
+  <includeInCommandInterface>true</includeInCommandInterface>
+  <content>CommonModule.EUSignКлиентСервер</content>
+  <content>DataProcessor.EUSign</content>
+</mdclass:Subsystem>

@@ -1,0 +1,820 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+// Криптографічна бібліотека EU1S
+// {184ABD64-EA43-4EC5-9CA3-3A50C75D7F1F}
+[
+	uuid(184ABD64-EA43-4EC5-9CA3-3A50C75D7F1F),
+	version(4.0),
+	helpstring("IIT EU1S 4.0 Type Library")
+]
+library EU1S
+{
+	importlib("stdole2.tlb");
+
+	typedef enum
+	{
+		euRegKeyRootDefault				= 0,
+		euRegKeyRootHKLM				= 1,
+		euRegKeyRootHKCU				= 2
+	} RegKeyRoot;
+
+	typedef enum
+	{
+		euUIModeOff	= 0,
+		euUIModeOn	= 1
+	} UIMode;
+
+	typedef enum
+	{
+		euFlagProtect		= 1,
+		euFlagSignOrVerify	= 2,
+		euFlagExternalSign	= 4,
+		euFlagEncrOrDecr	= 8,
+		euFlagViewInfo		= 16
+	} ProcessFileFlags;
+
+	typedef enum
+	{
+		euSignTypeUnknown	= 0,
+		euSignTypeBES		= 1,
+		euSignTypeCAdEST	= 4,
+		euSignTypeCAdESC	= 8,
+		euSignTypeCAdESXLong= 16
+	} SignType;
+
+	// Інтерфейси бібліотеки
+	interface ILibrary;
+	interface IOwnerInfo;
+	interface ISignInfo;
+	interface IEnvelopedInfo;
+
+	// Інтерфейс бібліотеки ILibrary
+	// {20A5CB2C-73D9-4467-A632-159C18403D43}
+	[
+		uuid(20A5CB2C-73D9-4467-A632-159C18403D43),
+		dual
+	]
+	interface ILibrary : IDispatch
+	{
+		// Метод отримання інформації про версію
+		// libVersion -			параметр, що повертається. Містить інформацію про
+		//						версію
+		[id(1)]
+		HRESULT GetVersion(
+			[out, retval] BSTR			*libVersion);
+
+		// Метод ініціалізації криптографічної бібліотеки 
+		// (зчитування особистого ключа тощо)
+		// rootKey -			вхідний параметр.
+		// regPath -			вхідний параметр.
+		// uiMode -				вхідний параметр.
+		[id(2)]
+		HRESULT Initialize(
+			[in] RegKeyRoot				rootKey,
+			[in] BSTR					regPath,
+			[in] UIMode					uiMode);
+
+		// Метод завершення роботи з криптографічною бібліотекою
+		[id(3)]
+		HRESULT Finalize();
+
+		// Метод встановлення параметрів роботи з бібліотекою
+		[id(4)]
+		HRESULT SetSettings();
+
+		// Метод відображення сертифікатів з файлового сховища 
+		[id(5)]
+		HRESULT ViewCerts();
+
+		//Метод відображення СВС з файлового сховища
+		[id(6)]
+		HRESULT ViewCRLs();
+
+		// Метод зчитування особистого ключа
+		// ownerCertID -		параметр, що повертається. Ідентифікатор сертифіката користувача.
+		[id(7)]
+		HRESULT ReadPrivateKey(
+			[out, retval] BSTR			*ownerCertID);
+
+		// Метод перевірки наявності зчитаного особистого ключа
+		// readed -				параметр, що повертається. Признак того, що ключ зчитано.
+		[id(8)]
+		HRESULT IsPrivateKeyReaded(
+			[out, retval] VARIANT_BOOL	*readed);
+
+		// Метод затирання особистого ключа у пам’яті
+		[id(9)]
+		HRESULT ResetPrivateKey();
+
+		// Метод зміни паролю захисту особистого ключа на носії з особистим ключем
+		[id(10)]
+		HRESULT ChangePrivateKeyPassword();
+
+		// Метод резервного копіювання особистого ключа. Носії повинні підтримувати резервне 
+		// копіювання ключа(не бути апаратними модулями)
+		[id(11)]
+		HRESULT BackupPrivateKey();
+
+		// Метод знищення особистого ключа на носії
+		[id(12)]
+		HRESULT DestroyPrivateKey();
+
+		// Метод визначення даних про власника сертифіката
+		// certID -				параметр, що повертається. Ідентифікатор сертифіката.
+		[id(13)]
+		HRESULT SelectCertificateID(
+			[out, retval] BSTR			*certID);
+
+		// Метод обробки файлу
+		// inputFile -			вхідний параметр. Ім'я вхідного файлу.
+		// outputFile -			вхідний параметр. Ім'я вихідного файлу.
+		// flags -				вхідний параметр. Параметри(флаги) обробки файлу
+		// recipientCertID -	вхідний параметр. Ідентифікатор сертифікату одержувача
+		// info -				параметр, що повертається. Інформація про захищений файл
+		[id(14)]
+		HRESULT ProcessFile(
+			[in] BSTR					inputFile,
+			[in] BSTR					outputFile,
+			[in] LONG					flags,
+			[in] BSTR 					recipientCertID,
+			[out, retval] LONG			*info);
+
+		// Метод відображення інформації про захищений файл
+		// info -				вхідний параметр. Інформація про захищений файл
+		[id(15)]
+		HRESULT ViewFileInfo(
+			[in] LONG					info);
+
+		// Метод вивільнення інфориації про файл
+		// info -				вхідний параметр. Інформація про файл
+		[id(16)]
+		HRESULT FreeFileInfo(
+			[in] LONG					info);
+
+		// Метод отримання інформації про власника особистого ключа
+		// ownerInfo -			параметр, що повертається. Інформація про власника особистого ключа
+		[id(17)]
+		HRESULT GetPrivateKeyOwnerInfo(
+			[out, retval] VARIANT		*ownerInfo);
+
+		// Метод отримання інформації про власника сертифіката
+		// certID -				вхідний параметр. Ідентифікатор сертифіката
+		// ownerInfo -			параметр, що повертається. Інформація про власника сертифіката
+		[id(18)]
+		HRESULT GetCertificateOwnerInfo(
+			[in] BSTR					certID,
+			[out, retval] VARIANT		*ownerInfo);
+
+		// Метод підпису файлу
+		// inputFile -			вхідний параметр. Містить ім'я файлу,
+		//						який необхідно підписати
+		// signature -			параметр, що повертається. Підпис.
+		[id(19)]
+		HRESULT SignFile(
+			[in] BSTR					inputFile,
+			[out, retval] BSTR			*signature);
+
+		// Метод перевірки підпису файлу
+		// inputFile -			вхідний параметр. Містить ім'я файлу,
+		//						для перевірки
+		// signature -			вхідний параметр. Підпис.
+		// signInfo -			параметр, що повертається. Інформація про підпис.
+		[id(20)]
+		HRESULT VerifyFile(
+			[in] BSTR					inputFile,
+			[in] BSTR					signature,
+			[out, retval] VARIANT		*signInfo);
+
+		// Метод отримання інформації про останню помилку
+		// errorDescription -	параметр, що повертається. Інформація про останню помилку
+		[id(21)]
+		HRESULT GetLastErrorDescription(
+			[out, retval] BSTR			*errorDescription);
+
+		// Метод отпримання інформації про власника файлу сертифіката
+		// certFile -			вхідний параметр. Ім'я файлу з сертифікатом
+		// ownerInfo -			параметр, що повертається. Інформація про власника сертифіката
+		[id(22)]
+		HRESULT GetFileCertificateOwnerInfo(
+			[in] BSTR					certFile,
+			[out, retval] VARIANT		*ownerInfo);
+
+		// Метод підпису даних
+		// inputData -			вхідний параметр. Вхідні дані для підпису
+		// signature -			параметр, що повертається. Підпис.
+		[id(23)]
+		HRESULT SignData(
+			[in] VARIANT				inputData,
+			[out, retval] BSTR			*signature);
+
+		// Метод перевірки підпису даних
+		// inputData -			вхідний параметр. Вхідні дані для перевірки
+		// signature -			вхідний параметр. Підпис.
+		// signInfo -			параметр, що повертається.Інформація про підпис.
+		[id(24)]
+		HRESULT VerifyData(
+			[in] VARIANT				inputData,
+			[in] BSTR					signature,
+			[out, retval] VARIANT		*signInfo);
+
+		// Метрод встановлення особистого ключа
+		// privKeyFile -		вхідний параметр. Ім'я файлу з особистим ключем
+		// password -			вхідний параметр. Пароль доступу до особистого ключа
+		// ownerCertID -		параметр, що повертається. Ідентифікатор сертифіката власника
+		[id(25)]
+		HRESULT ReadPrivateKeyBinary(
+			[in] BSTR					privKeyFile,
+			[in] BSTR					password,
+			[out, retval] BSTR			*ownerCertID);
+
+		// Метод отримання інформації про підпис
+		// info -				вхідний параметр.
+		// signInfo -			параметр, що повертається.
+		[id(26)]
+		HRESULT GetSignInfo(
+			[in] LONG 					info,
+			[out, retval] VARIANT		*signInfo);
+
+		// Метод отримання інформації про наявність інформації про підпис
+		[id(27)]
+		HRESULT IsSignInfoAvailable(
+			[in] LONG 					info,
+			[out, retval] VARIANT_BOOL	*available);
+
+		// Метод отримання інформації про зашифровані дані файлу
+		[id(28)]
+		HRESULT GetEnvelopedInfo(
+			[in] LONG 					info,
+			[out, retval] VARIANT		*envelopedInfo);
+
+		// Метод отримання інформації про наявність інформації про зашифровані дані
+		[id(29)]
+		HRESULT IsEnvelopedInfoAvailable(
+			[in] LONG 					info,
+			[out, retval] VARIANT_BOOL	*available);
+
+		// Метод перевірки сертифіката
+		// certID -				вхідний параметр. Ідентифікатор сертифіката
+		// ownerInfo -			параметр, що повертається. Інформація про власника сертифіката
+		[id(30)]
+		HRESULT CheckCertificate(
+			[in] BSTR					certID,
+			[out, retval] VARIANT		*ownerInfo);
+
+		// Метрод встановлення особистого ключа з файлу
+		// privKeyFile -		вхідний параметр. Ім'я файлу особистого ключа
+		// password -			вхідний параметр. Пароль доступу до особистого ключа
+		// certFile1 -			вхідний параметр. Файл сертифікату 1
+		// certFile2 -			вхідний параметр. Файл сертифікату 2
+		// ownerCertID -		параметр, що повертається. Ідентифікатор сертифіката власника
+		[id(31)]
+		HRESULT ReadPrivateKeyFile(
+			[in] BSTR					privKeyFile,
+			[in] BSTR					password,
+			[in] BSTR					certFile1,
+			[in] BSTR					certFile2,
+			[out, retval] BSTR			*ownerCertID);
+
+		//Метод встановлення кодування строк
+		// codePage -			вхідний параметр. Кодування строк
+		[id(32)]
+		HRESULT SetCodePage(
+			[in] VARIANT			codePage);
+
+		// Метод перевірки сертифіката
+		// cert -				вхідний параметр. Сертифікат у вигляді BASE-64 строки
+		// ownerInfo -			параметр, що повертається. Інформація про власника сертифіката
+		[id(33)]
+		HRESULT CheckCertificateBinary(
+			[in] BSTR					cert,
+			[out, retval] VARIANT		*ownerInfo);
+
+		// Метод отримання сертифікату з файлу з підписаними даними.
+		// file -				вхідний параметр. Ім'я файлу з підписаними даними
+		// signerIndex -		вхідний параметр. Індекс підписувача
+		// certificate -		параметр, що повертається. Сертифікат у вигляді BASE-64 строки
+		[id(34)]
+		HRESULT GetSignerCertificateFromFile(
+			[in] BSTR					file,
+			[in] LONG					signerIndex,
+			[out, retval] BSTR			*certificate);
+
+		// Метод отримання сертифікату з підписаних даних.
+		// data -				вхідний параметр. Підписанині дані
+		// signerIndex -		вхідний параметр. Індекс підписувача
+		// certificate -		параметр, що повертається. Сертифікат у вигляді BASE-64 строки
+		[id(35)]
+		HRESULT GetSignerCertificateFromData(
+			[in] BSTR					data,
+			[in] LONG					signerIndex,
+			[out, retval] BSTR			*certificate);
+
+		// Метод підпису даних за допомогою внутрішнього підпису
+		// inputData -			вхідний параметр. Вхідні дані для підпису
+		// appendCert -			вхідний параметр. Признак необхідності додавати сертифікат підписувача до підпису
+		// signature -			параметр, що повертається. Підпис.
+		[id(36)]
+		HRESULT SignDataInternal(
+			[in] VARIANT				inputData,
+			[in] VARIANT_BOOL			appendCert,
+			[out, retval] BSTR			*signature);
+
+		// Метод перевірки підпису даних для внутрішнього підпису
+		// signedData -			вхідний параметр. Підписані дані.
+		// signInfo -			параметр, що повертається. Інформація про підписані дані.
+		[id(37)]
+		HRESULT VerifyDataInternal(
+			[in] BSTR					signature,
+			[out, retval] VARIANT		*signInfo);
+
+		// Метод встановлення типу підпису
+		// signType -			вхідний параметр. Тип підпису.
+		[id(38)]
+		HRESULT SetSignType(
+			[in] LONG					signType);
+
+		// Метод отримання признаку необхідності встановлення параметрів
+		// needed -				параметр, що повертається. Признак того, необхідно встановити параметри.
+		[id(39)]
+		HRESULT DoesNeedSetSettings(
+			[out, retval] VARIANT_BOOL	*needed);
+
+		// Метод отримання параметрів взаємодії з серверами ЦСК
+		// offlineMode -		параметр, що повертається. Признак того, що взаємодія з ЦСК вимкнена.
+		[id(40)]
+		HRESULT GetModeSettings(
+			[out, retval] VARIANT_BOOL	*offlineMode);
+
+		// Метод встановлення параметрів взаємодії з серверами ЦСК
+		// offlineMode -		вхідний параметр. Признак того, що взаємодія з ЦСК вимкнена.
+		[id(41)]
+		HRESULT SetModeSettings(
+			[in] VARIANT_BOOL			offlineMode);
+
+		// Метод встановлення параметрів файлового сховища
+		// path					вхідний параметр. Каталог, в якому 
+		//						розміщуються сертифікати та СВС
+		// checkCRLs			вхідний параметр. Признак необхідності 
+		//						використання СВС при визначенні 
+		//						статусу сертифіката
+		// autoRefresh			вхідний параметр. Признак необхідності 
+		//						автоматичного виявлення змін у 
+		//						файловому сховищі при записі, 
+		//						модифікації чи видаленні 
+		//						сертифікатів та СВС
+		// ownCRLsOnly			вхідний параметр. Признак необхідності 
+		//						використання СВС тільки власного 
+		//						ЦСК користувача
+		// fullAndDeltaCRLs		вхідний параметр. Признак 
+		//						необхідності перевірки наявності 
+		//						двох діючих СВС – повного та 
+		//						часткового
+		// autoDownloadCRLs		вхідний параметр. Признак 
+		//						необхідності автоматичного 
+		//						завантаження СВС
+		// saveLoadedCerts		вхідний параметр. Признак 
+		//						необхідності автоматичного 
+		//						збереження сертифікатів отриманих 
+		//						з LDAP-сервера чи за протоколом 
+		//						OCSP у файлове сховище
+		// expireTime			вхідний параметр. Час зберігання стану
+		//						перевіреного сертифіката 
+		//						(у секундах)
+		[id(42)]
+		HRESULT SetFileStoreSettings(
+			[in] BSTR					path,
+			[in] VARIANT_BOOL			checkCRLs,
+			[in] VARIANT_BOOL			autoRefresh,
+			[in] VARIANT_BOOL			ownCRLsOnly,
+			[in] VARIANT_BOOL			fullAndDeltaCRLs,
+			[in] VARIANT_BOOL			autoDownloadCRLs,
+			[in] VARIANT_BOOL			saveLoadedCerts,
+			[in] LONG					expireTime);
+
+		// Метод встановлення параметрів Proxy-сервера
+		// useProxy				вхідний параметр. Признак необхідності 
+		//						підключення до ЦСК через
+		//						proxy-сервер
+		// anonymous			вхідний параметр. Признак анонімного 
+		//						proxy-сервера
+		// address				вхідний параметр. ІР-адреса або DNS-ім’я 
+		//						proxy-сервера
+		// port					вхідний параметр. TCP-порт proxy-сервера
+		// user					вхідний параметр. Ім’я користувача 
+		//						proxy-сервера
+		// password				вхідний параметр. Пароль доступу 
+		//						користувача до proxy-сервера
+		// savePassword			вхідний параметр. Признак зберігання 
+		//						пароля доступу до proxy-сервера
+		[id(43)]
+		HRESULT SetProxySettings(
+			[in] VARIANT_BOOL			useProxy,
+			[in] VARIANT_BOOL			anonymous,
+			[in] BSTR					address,
+			[in] BSTR					port,
+			[in] BSTR					user,
+			[in] BSTR					password,
+			[in] VARIANT_BOOL			savePassword);
+
+		// Метод встановлення параметрів OCSP-сервера
+		// useOCSP				вхідний параметр. Признак необхідності 
+		//						використання механізму визначення 
+		//						статусу сертифікатів за допомогою 
+		//						протоколу OCSP
+		// beforeStore			вхідний параметр. Признак черговості 
+		//						перевірки статусу сертифіката
+		// address				вхідний параметр. ІР-адреса або DNS-ім’я 
+		//						OCSP-сервера
+		// port					вхідний параметр. TCP-порт OCSP-сервера
+		[id(44)]
+		HRESULT SetOCSPSettings(
+			[in] VARIANT_BOOL			useOCSP,
+			[in] VARIANT_BOOL			beforeStore,
+			[in] BSTR					address,
+			[in] BSTR					port);
+
+		// Метод встановлення параметрів TSP-сервера
+		// getStamps			вхідний параметр. Признак необхідності 
+		//						отримувати позначки часу під час 
+		//						формування підпису
+		// address				вхідний параметр. ІР-адреса або DNS-ім’я 
+		//						TSP-сервера
+		// port					вхідний параметр. TCP-порт TSP-сервера
+		[id(45)]
+		HRESULT SetTSPSettings(
+			[in] VARIANT_BOOL			getStamps,
+			[in] BSTR					address,
+			[in] BSTR					port);
+
+		// Метод встановлення параметрів LDAP-сервера
+		// useLDAP				вхідний параметр. Признак необхідності 
+		//						використання LDAP-сервера
+		// address				вхідний параметр. ІР-адреса або DNS-ім’я 
+		//						LDAP-сервера
+		// port					вхідний параметр. TCP-порт LDAP-сервера
+		// anonymous			вхідний параметр. Признак анонімного 
+		//						доступу до LDAP-сервера
+		// user					вхідний параметр. Ім’я користувача
+		// password				вхідний параметр. Пароль доступу 
+		//						користувача до LDAP-сервера
+		[id(46)]
+		HRESULT SetLDAPSettings(
+			[in] VARIANT_BOOL			useLDAP,
+			[in] BSTR					address,
+			[in] BSTR					port,
+			[in] VARIANT_BOOL			anonymous,
+			[in] BSTR					user,
+			[in] BSTR					password);
+
+		// Метод встановлення параметрів CMP-сервера
+		// useCMP				вхідний параметр. Признак необхідності 
+		//						використання CMP-сервера
+		// address				вхідний параметр. ІР-адреса або DNS-ім’я 
+		//						CMP-сервера
+		// port					вхідний параметр. TCP-порт CMP-сервера
+		// commonName			вхідний параметр. Реквізит
+		//						сертифіката "повне найменування 
+		//						організації" ("commonName")
+		[id(47)]
+		HRESULT SetCMPSettings(
+			[in] VARIANT_BOOL			useCMP,
+			[in] BSTR					address,
+			[in] BSTR					port,
+			[in] BSTR					commonName);
+
+		// Метод встановлення інформації, щодо використання точок доступу до серверів OCSP
+		// enabled				вхідний параметр. Признак використання 
+		//						точок доступу до серверів OCSP
+		[id(48)]
+		HRESULT SetOCSPAccessInfoModeSettings(
+			[in] VARIANT_BOOL			enabled);
+
+		// Метод встановлення параметрів доступу до серверу OCSP за реквізитами ЦСК
+		// issuerCN				вхідний параметр. Реквізити ЦСК
+		// address				вхідний параметр. Точка доступу до
+		//						OCSP - серверу
+		// port					вхідний параметр. TCP-порт OCSP - серверу
+		[id(49)]
+		HRESULT SetOCSPAccessInfoSettings(
+			[in] BSTR					issuerCN,
+			[in] BSTR					address,
+			[in] BSTR					port);
+
+		// Метод перелічення точок доступу до серверів OCSP
+		// index				вхідний параметр. Порядковий номер точки
+		//						доступу до серверу OCSP
+		// issuerCN				вихідний параметр. Реквізити ЦСК.
+		//						Якщо повертається пуста строка - перелік закінчено.
+		[id(50)]
+		HRESULT EnumOCSPAccessInfoSettings(
+			[in] LONG					index,
+			[out, retval] BSTR			*issuerCN);
+
+		// Метод видалення параметрів доступу до серверу OCSP за реквізитами ЦСК
+		//						вхідний параметр. Реквізити ЦСК
+		[id(51)]
+		HRESULT DeleteOCSPAccessInfoSettings(
+			[in] BSTR					issuerCN);
+
+		// Визначає чи є дані підписаними
+		// inputData -			вхідний параметр. Вхідні дані для перевірки
+		// isSigned -			параметр, що повертається. Признак того, що дані підписані.
+		[id(52)]
+		HRESULT IsSignedData(
+			[in] VARIANT				inputData,
+			[out, retval] VARIANT_BOOL	*isSigned);
+
+		// Визначає чи є файл підписаним
+		// inputFile -			вхідний параметр. Ім'я файла для перевірки
+		// isSigned -			параметр, що повертається. Признак того, що файл підписаний.
+		[id(53)]
+		HRESULT IsSignedFile(
+			[in] BSTR					inputFile,
+			[out, retval] VARIANT_BOOL	*isSigned);
+
+		// Визначає чи є дані зашифрованими
+		// inputData -			вхідний параметр. Вхідні дані для перевірки
+		// isEnveloped -			параметр, що повертається. Признак того, що дані зашифровані.
+		[id(54)]
+		HRESULT IsEnvelopedData(
+			[in] VARIANT				inputData,
+			[out, retval] VARIANT_BOOL	*isEnveloped);
+
+		// Визначає чи є файл зашифрованим
+		// inputFile -			вхідний параметр. Ім'я файла для перевірки
+		// isSigned -			параметр, що повертається. Признак того, що файл зашифрований.
+		[id(55)]
+		HRESULT IsEnvelopedFile(
+			[in] BSTR					inputFile,
+			[out, retval] VARIANT_BOOL	*isEnveloped);
+	};
+
+	// Інтерфейс отримання детальної інформації про власника сертифіката
+	// {EDAEC3C4-25AB-417c-B1D8-5135E43AA6CF}
+	[
+		uuid(EDAEC3C4-25AB-417c-B1D8-5135E43AA6CF),
+		dual
+	]
+	interface IOwnerInfo : IDispatch
+	{
+		// Метод отримання інформації про ідентифікатор ЦСК, що випустив сертифікат
+		// certID -				параметр, що повертається. Містить інформацію про
+		//						ідентифікатор ЦСК, що випустив сертифікат
+		[id(1)]
+		HRESULT GetIssuerCertificateID(
+			[out, retval] BSTR			*certID);
+
+		// Метод отримання інформації про реквізити ЦСК, що видав сертифікат
+		// cn -					параметр, що повертається. Містить інформацію про
+		//						реквізити ЦСК, що видав сертифікат
+		[id(2)]
+		HRESULT GetIssuerCommonName(
+			[out, retval] BSTR			*cn);
+
+		// Метод отримання інформації про серійний номер сертифіката
+		// serial -				параметр, що повертається. Містить інформацію про
+		//						серійний номер сертифіката
+		[id(3)]
+		HRESULT GetCertificateSerial(
+			[out, retval] BSTR			*serial);
+
+		// Метод отримання інформації про ідентифікатор сертифіката
+		// certID				параметр, що повертається. Містить інформацію про
+		//						ідентифікатор сертифіката
+		[id(4)]
+		HRESULT GetCertificateID(
+			[out, retval] BSTR			*certID);
+
+		// Метод отримання реквізиту сертифіката "повне найменування організації"
+		// cn -					параметр, що повертається. Містить інформацію про
+		//						реквізити власника сертифіката
+		[id(5)]
+		HRESULT GetCommonName(
+			[out, retval] BSTR			*cn);
+
+		// Метод отримання інформації про організацію до 
+		// якої належить власник сертифіката
+		// org -				параметр, що повертається. Містить інформацію про
+		//						організацію до якої належить власник сертифіката
+		[id(6)]
+		HRESULT GetOrganization(
+			[out, retval] BSTR			*org);
+
+		// Метод отримання інформації про підрозділ організації 
+		// до якої належить власник сертифіката
+		// orgUnit -			параметр, що повертається. Містить інформацію про
+		//						підрозділ організації до якої належить власник сертифіката
+		[id(7)]
+		HRESULT GetOragizationalUnit(
+			[out, retval] BSTR			*orgUnit);
+
+		// Метод отримання інформації про посаду власника сертифіката
+		// title -				параметр, що повертається. Містить інформацію про
+		//						посаду власника сертифіката
+		[id(8)]
+		HRESULT GetTitle(
+			[out, retval] BSTR			*title);
+
+		// Метод отримання інформації про державу до якої належить власник сертифіката
+		// state				параметр, що повертається. Містить інформацію про
+		//						державу до якої належить власник сертифіката
+		[id(9)]
+		HRESULT GetState(
+			[out, retval] BSTR			*state);
+
+		// Метод отримання інформації про населений пункт до якого належить
+		// власник сертифіката
+		// locality -			параметр, що повертається. Містить інформацію про
+		//						населений пункт до якого належить власник сертифіката
+		[id(10)]
+		HRESULT GetLocality(
+			[out, retval] BSTR			*locality);
+
+		// Метод отримання інформації про повне ім’я власника сертифіката
+		// fullName -			параметр, що повертається. Містить інформацію про
+		//						повне ім’я власника сертифіката
+		[id(11)]
+		HRESULT GetFullName(
+			[out, retval] BSTR			*fullName);
+
+		// Метод отримання інформації про адресу власника сертифіката
+		// address				параметр, що повертається. Містить інформацію про
+		//						адресу власника сертифіката
+		[id(12)]
+		HRESULT GetAddress(
+			[out, retval] BSTR			*address);
+
+		// Метод отримання інформації про телефон власника сертифіката
+		// phone				параметр, що повертається. Містить інформацію про
+		//						телефон власника сертифіката
+		[id(13)]
+		HRESULT GetPhone(
+			[out, retval] BSTR			*phone);
+
+		// Метод отримання інформації про адресу електронної пошти власника сертифіката
+		// email				параметр, що повертається. Містить інформацію про
+		//						адресу електронної пошти власника сертифіката
+		[id(14)]
+		HRESULT GetEMail(
+			[out, retval] BSTR			*email);
+
+		// Метод отримання інформації про DNS-ім`я чи інше технічного засобу
+		// dns					параметр, що повертається. Містить інформацію про
+		//						DNS-ім`я чи інше технічного засобу
+		[id(15)]
+		HRESULT GetDNS(
+			[out, retval] BSTR			*dns);
+
+		// Метод отримання інформації про ЄДРПОУ код власника сертифіката
+		// edrpouCode			параметр, що повертається. Містить інформацію про
+		//						ЄДРПОУ код власника сертифіката
+		[id(16)]
+		HRESULT GetEDRPOUCode(
+			[out, retval] BSTR			*edrpouCode);
+
+		// Метод отримання інформації про ДРФО код власника сертифіката
+		// drfoCode	-			параметр, що повертається. Містить інформацію про
+		//						ДРФО код власника сертифіката
+		[id(17)]
+		HRESULT GetDRFOCode(
+			[out, retval] BSTR			*drfoCode);
+
+		//Метод отпримання відбитку сертифіката
+		[id(18)]
+		HRESULT GetThumbprint(
+			[out, retval] BSTR			*thumbprint);
+
+		//Метод отпримання відбитку сертифіката
+		[id(19)]
+		HRESULT GetThumbprintBinary(
+			[out, retval] BSTR			*thumbprint);
+
+		// Метод отримання часу підпису введення сертифіката в дію
+		// certBeginTime -		параметр, що повертається. Час введення 
+		//						сертифіката в дію
+		[id(20)]
+		HRESULT GetCertBeginTime(
+			[out, retval] VARIANT		*certBeginTime);
+
+		// Метод отримання часу закінчення дії сертифіката
+		// certEndTime -		параметр, що повертається. Дата закінчення 
+		//						дії сертифіката
+		[id(21)]
+		HRESULT GetCertEndTime(
+			[out, retval] VARIANT		*certEndTime);
+
+		// Метод отримання часу підпису введення в дію особистого ключа
+		// privKeyBeginTime -	параметр, що повертається. Час введення 
+		//						в дію особистого ключа
+		[id(22)]
+		HRESULT GetPrivKeyBeginTime(
+			[out, retval] VARIANT		*privKeyBeginTime);
+
+		// Метод отримання часу підпису виведення з дії особистого ключа
+		// privKeyEndTime -		параметр, що повертається. Час виведення 
+		//						з дії особистого ключа
+		[id(23)]
+		HRESULT GetPrivKeyEndTime(
+			[out, retval] VARIANT		*privKeyEndTime);
+
+		// Метод отримання уточненого призначення ключа
+		// certExtKeyUsages -	параметр, що повертається. Уточнене
+		//						призначення ключа
+		[id(24)]
+		HRESULT GetCertExtKeyUsages(
+			[out, retval] BSTR			*certExtKeyUsages);
+	}
+
+	// ISignInfo interface
+	// {21257CA3-F3B4-46bf-954C-2B27E0FD1D8F}
+	[
+		uuid(21257CA3-F3B4-46bf-954C-2B27E0FD1D8F),
+		dual
+	]
+	interface ISignInfo : IDispatch
+	{
+		// Метод відображення інформації про підпис
+		[id(1)]
+		HRESULT ShowSignInfo();
+
+		// Метод отримання розширеної інформації про підписувача
+		// signerInfo -			параметр, що повертається. Містить інформацію про
+		//						підписувача
+		[id(2)]
+		HRESULT GetSignerInfo(
+			[out, retval] VARIANT		*signerInfo);
+
+		// Метод отримання інформації про наявність часу підпису
+		// exist -				параметр, що повертається. Признак наявності часу підпису
+		[id(3)]
+		HRESULT IsTimeExist(
+			[out, retval] VARIANT_BOOL	*exist);
+
+		// Метод отримання інформації про наявність мітки часу підпису
+		// timeStamp -			параметр, що повертається. Признак наявності мітки часу підпису
+		[id(4)]
+		HRESULT IsTimeStamp(
+			[out, retval] VARIANT_BOOL	*timeStamp);
+
+		// Метод отримання часу підпису
+		// time -				параметр, що повертається. Час підпису
+		[id(5)]
+		HRESULT GetTime(
+			[out, retval] VARIANT		*time);
+
+		// Метод отримання даних, що були підписані (для внутрішнього підпису)
+		// data -				параметр, що повертається. Дані, що були підписані
+		[id(6)]
+		HRESULT GetData(
+			[out, retval] VARIANT		*data);
+	}
+
+	// IEnvelopedInfo interface
+	// {35614BD5-9503-4EAE-89F2-827D81E6E99D}
+	[
+		uuid(35614BD5-9503-4EAE-89F2-827D81E6E99D),
+		dual
+	]
+	interface IEnvelopedInfo : IDispatch
+	{
+		// Метод відображення інформації про зашифровані дані
+		[id(1)]
+		HRESULT ShowEnvelopedInfo();
+
+		// Метод отримання розширеної інформації про відправника
+		// senderInfo -			параметр, що повертається. Містить інформацію про
+		//						відправника
+		[id(2)]
+		HRESULT GetSenderInfo(
+			[out, retval] VARIANT		*senderInfo);
+
+		// Метод отримання інформації про наявність часу підпису
+		// exist -				параметр, що повертається. Признак наявності часу підпису
+		[id(3)]
+		HRESULT IsTimeExist(
+			[out, retval] VARIANT_BOOL	*exist);
+
+		// Метод отримання інформації про наявність мітки часу підпису
+		// timeStamp -			параметр, що повертається. Признак наявності мітки часу підпису
+		[id(4)]
+		HRESULT IsTimeStamp(
+			[out, retval] VARIANT_BOOL	*timeStamp);
+
+		// Метод отримання часу підпису
+		// time -				параметр, що повертається. Час підпису
+		[id(5)]
+		HRESULT GetTime(
+			[out, retval] VARIANT		*time);
+	}
+
+	// EULibrary coclass
+	// {B6F7AD71-9500-439A-89E5-2517FC91580B}
+	[
+		uuid(B6F7AD71-9500-439A-89E5-2517FC91580B)
+	]
+	coclass Library
+	{
+		[default] interface ILibrary;
+	};
+};

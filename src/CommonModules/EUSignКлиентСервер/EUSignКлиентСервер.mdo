@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:CommonModule xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="4868ef39-7ffc-4d55-a1e0-364332a1eadc">
+  <name>EUSignКлиентСервер</name>
+  <synonym>
+    <key>ru</key>
+    <value>EUSign: клиент, сервер</value>
+  </synonym>
+  <synonym>
+    <key>uk</key>
+    <value>EUSign: клієнт, сервер</value>
+  </synonym>
+  <clientManagedApplication>true</clientManagedApplication>
+  <server>true</server>
+</mdclass:CommonModule>

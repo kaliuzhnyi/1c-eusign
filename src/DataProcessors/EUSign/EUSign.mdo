@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:DataProcessor xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="e2d900f0-221a-4eb7-895f-dceb094a7acd">
+  <producedTypes>
+    <objectType typeId="f3506336-8e70-48c5-93f9-7dedf75361f5" valueTypeId="88ce4fbd-b804-4cfb-be96-04909ce16e0f"/>
+    <managerType typeId="06a2797d-8b61-49d7-9482-e0ee6c964c7b" valueTypeId="8010e3f9-4e37-4083-86f7-2aa72d0a1480"/>
+  </producedTypes>
+  <name>EUSign</name>
+  <synonym>
+    <key>ru</key>
+    <value>EUSign, криптографическая библиотека</value>
+  </synonym>
+  <synonym>
+    <key>uk</key>
+    <value>EUSign, криптографічна бібліотека</value>
+  </synonym>
+  <useStandardCommands>true</useStandardCommands>
+  <defaultForm>DataProcessor.EUSign.Form.Форма</defaultForm>
+  <forms uuid="6a37ca32-c636-4ba7-bcf9-0a3f019446f6">
+    <name>Форма</name>
+    <synonym>
+      <key>ru</key>
+      <value>Форма</value>
+    </synonym>
+    <usePurposes>PersonalComputer</usePurposes>
+    <usePurposes>MobileDevice</usePurposes>
+  </forms>
+  <templates uuid="46d7a00e-d266-466c-a3c1-4153dc660d3d">
+    <name>EU1SArchive</name>
+    <synonym>
+      <key>ru</key>
+      <value>EU1SArchive</value>
+    </synonym>
+    <templateType>BinaryData</templateType>
+  </templates>
+  <templates uuid="986a6a02-e793-4dad-b64e-35dd300f19f0">
+    <name>EU1SArchive64</name>
+    <synonym>
+      <key>ru</key>
+      <value>EU1SArchive64</value>
+    </synonym>
+    <templateType>BinaryData</templateType>
+  </templates>
+  <templates uuid="d2371ad1-3381-40e2-a4ab-0b628bd4637d">
+    <name>МетодыКриптографическойБиблиотеки</name>
+    <synonym>
+      <key>ru</key>
+      <value>Методы криптографической библиотеки</value>
+    </synonym>
+    <synonym>
+      <key>uk</key>
+      <value>Методи криптографічної бібліотеки</value>
+    </synonym>
+    <templateType>TextDocument</templateType>
+  </templates>
+</mdclass:DataProcessor>
